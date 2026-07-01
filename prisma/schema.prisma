@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Lease {
+  id              String     @id @default(cuid())
+  equipment_name  String
+  category        String
+  lessor          String
+  contract_number String?
+  start_date      DateTime
+  end_date        DateTime
+  monthly_fee     Float
+  lease_rate      Float?
+  status          String     @default("契約中")
+  location        String?
+  memo            String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  documents       Document[]
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  lease_id    String
+  file_name   String
+  blob_url    String
+  file_type   String
+  uploaded_at DateTime @default(now())
+  lease       Lease    @relation(fields: [lease_id], references: [id], onDelete: Cascade)
+}
