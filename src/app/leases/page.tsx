@@ -20,10 +20,10 @@ import {
   ChevronDown,
   Trash2,
 } from "lucide-react";
-import { formatDate, formatCurrency, getDaysUntilEnd } from "@/lib/utils";
+import { formatDate, getDaysUntilEnd } from "@/lib/utils";
 
 const LESSORS = ["114リース", "オーシャンリース", "いよ銀リース"];
-const STATUSES = ["契約中", "更新予定", "解約済み", "返却済み"];
+const STATUSES = ["契約中", "更新予定", "終了"];
 
 type Lease = {
   id: string;
@@ -42,8 +42,7 @@ function StatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
     "契約中": "bg-green-100 text-green-800",
     "更新予定": "bg-blue-100 text-blue-800",
-    "解約済み": "bg-gray-100 text-gray-600",
-    "返却済み": "bg-gray-100 text-gray-600",
+    "終了": "bg-gray-100 text-gray-600",
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${variants[status] ?? "bg-gray-100 text-gray-600"}`}>
@@ -55,8 +54,8 @@ function StatusBadge({ status }: { status: string }) {
 function AlertBadge({ endDate }: { endDate: string }) {
   const days = getDaysUntilEnd(endDate);
   if (days <= 0) return <Badge variant="destructive">期限切れ</Badge>;
-  if (days <= 30) return <Badge variant="destructive">残り{days}日</Badge>;
-  if (days <= 90) return <Badge variant="warning">残り{days}日</Badge>;
+  if (days <= 90) return <Badge variant="destructive">残り{days}日</Badge>;
+  if (days <= 180) return <Badge variant="warning">残り{days}日</Badge>;
   return null;
 }
 
@@ -179,6 +178,7 @@ export default function LeasesPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
+                <th className="text-left px-4 py-3 font-medium">契約番号</th>
                 <th
                   className="text-left px-4 py-3 font-medium cursor-pointer hover:bg-gray-100"
                   onClick={() => toggleSort("equipment_name")}
@@ -191,12 +191,6 @@ export default function LeasesPage() {
                   onClick={() => toggleSort("lessor")}
                 >
                   リース会社<SortIcon field="lessor" />
-                </th>
-                <th
-                  className="text-right px-4 py-3 font-medium cursor-pointer hover:bg-gray-100"
-                  onClick={() => toggleSort("monthly_fee")}
-                >
-                  月額<SortIcon field="monthly_fee" />
                 </th>
                 <th
                   className="text-left px-4 py-3 font-medium cursor-pointer hover:bg-gray-100"
@@ -212,13 +206,13 @@ export default function LeasesPage() {
             <tbody className="divide-y">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={7} className="text-center py-8 text-muted-foreground">
                     読み込み中...
                   </td>
                 </tr>
               ) : leases.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={7} className="text-center py-8 text-muted-foreground">
                     契約データがありません
                   </td>
                 </tr>
@@ -229,16 +223,16 @@ export default function LeasesPage() {
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => router.push(`/leases/${lease.id}`)}
                   >
+                    <td className="px-4 py-3 text-muted-foreground">{lease.contract_number ?? "-"}</td>
                     <td className="px-4 py-3 font-medium">{lease.equipment_name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{lease.category}</td>
                     <td className="px-4 py-3">{lease.lessor}</td>
-                    <td className="px-4 py-3 text-right">{formatCurrency(lease.monthly_fee)}</td>
                     <td className="px-4 py-3">{formatDate(lease.end_date)}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={lease.status} />
                     </td>
                     <td className="px-4 py-3">
-                      {(lease.status === "契約中" || lease.status === "更新予定") && (
+                      {lease.status !== "終了" && (
                         <AlertBadge endDate={lease.end_date} />
                       )}
                     </td>

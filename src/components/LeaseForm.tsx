@@ -15,8 +15,8 @@ import {
 import type { Lease } from "@prisma/client";
 
 const LESSORS = ["114リース", "オーシャンリース", "いよ銀リース"];
-const STATUSES = ["契約中", "更新予定", "解約済み", "返却済み"];
-const CATEGORIES = ["OA機器", "物流機器", "車両", "その他"];
+const STATUSES = ["契約中", "更新予定", "終了"];
+const CATEGORIES = ["サーバー", "パソコン", "FAX", "OA機器その他", "会社設備", "倉庫備品", "その他"];
 
 interface LeaseFormProps {
   lease?: Lease;
@@ -38,6 +38,7 @@ export function LeaseForm({ lease }: LeaseFormProps) {
       ? new Date(lease.end_date).toISOString().split("T")[0]
       : "",
     monthly_fee: lease?.monthly_fee?.toString() ?? "",
+    fee_type: (lease as Lease & { fee_type?: string })?.fee_type ?? "月額",
     lease_rate: lease?.lease_rate?.toString() ?? "",
     status: lease?.status ?? "契約中",
     location: lease?.location ?? "",
@@ -157,16 +158,30 @@ export function LeaseForm({ lease }: LeaseFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="monthly_fee">月額リース料(円) *</Label>
-          <Input
-            id="monthly_fee"
-            type="number"
-            value={form.monthly_fee}
-            onChange={(e) => set("monthly_fee", e.target.value)}
-            placeholder="例: 50000"
-            min="0"
-            required
-          />
+          <Label htmlFor="monthly_fee">リース料(円) *</Label>
+          <div className="flex gap-2">
+            <Select
+              value={form.fee_type}
+              onValueChange={(v) => set("fee_type", v)}
+            >
+              <SelectTrigger className="w-24 flex-shrink-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="月額">月額</SelectItem>
+                <SelectItem value="年額">年額</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              id="monthly_fee"
+              type="number"
+              value={form.monthly_fee}
+              onChange={(e) => set("monthly_fee", e.target.value)}
+              placeholder="例: 50000"
+              min="0"
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-2">

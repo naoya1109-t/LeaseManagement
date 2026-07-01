@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
       start_date: new Date(body.start_date),
       end_date: new Date(body.end_date),
       monthly_fee: parseFloat(body.monthly_fee),
+      fee_type: body.fee_type ?? "月額",
       lease_rate: body.lease_rate ? parseFloat(body.lease_rate) : null,
       status: body.status ?? "契約中",
       location: body.location || null,

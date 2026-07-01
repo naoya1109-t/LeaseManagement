@@ -17,6 +17,7 @@ model Lease {
   start_date      DateTime
   end_date        DateTime
   monthly_fee     Float
+  fee_type        String     @default("月額")
   lease_rate      Float?
   status          String     @default("契約中")
   location        String?

@@ -41,7 +41,7 @@ export default function LeaseDetailPage() {
   if (!lease) return null;
 
   const days = getDaysUntilEnd(lease.end_date);
-  const isActive = lease.status === "契約中" || lease.status === "更新予定";
+  const isActive = lease.status !== "終了";
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -104,16 +104,21 @@ export default function LeaseDetailPage() {
                   <dt className="text-xs text-muted-foreground">終了日</dt>
                   <dd className="mt-1 text-sm flex items-center gap-2">
                     {formatDate(lease.end_date)}
-                    {isActive && days <= 90 && (
-                      <Badge variant={days <= 30 ? "destructive" : "warning"}>
+                    {isActive && days <= 180 && (
+                      <Badge variant={days <= 90 ? "destructive" : "warning"}>
                         残り{days}日
                       </Badge>
                     )}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">月額リース料</dt>
-                  <dd className="mt-1 text-sm font-semibold">{formatCurrency(lease.monthly_fee)}</dd>
+                  <dt className="text-xs text-muted-foreground">リース料</dt>
+                  <dd className="mt-1 text-sm font-semibold">
+                    <span className="text-xs font-normal text-muted-foreground mr-1">
+                      {(lease as Lease & { fee_type?: string }).fee_type ?? "月額"}
+                    </span>
+                    {formatCurrency(lease.monthly_fee)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">リース料率</dt>

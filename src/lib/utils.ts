@@ -32,7 +32,7 @@ export function getDaysUntilEnd(endDate: Date | string): number {
 export function getAlertLevel(
   daysUntil: number
 ): "critical" | "warning" | "none" {
-  if (daysUntil <= 30) return "critical";
-  if (daysUntil <= 90) return "warning";
+  if (daysUntil <= 90) return "critical";
+  if (daysUntil <= 180) return "warning";
   return "none";
 }
